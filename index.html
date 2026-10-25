@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#020716">
+<title>YK BOT | AI Trading System</title>
+
+<style>
+:root{
+  --bg:#020716;
+  --panel:#081831;
+  --panel2:#0b2043;
+  --blue:#087cff;
+  --cyan:#00e5ff;
+  --green:#00f5b0;
+  --red:#ff426c;
+  --text:#eef6ff;
+  --muted:#a9c3e5;
+  --border:#1855a2;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:radial-gradient(ellipse at top,#10295a,#030a1c 55%,#01040c);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:15px;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+.hidden{display:none!important}
+.app{max-width:1500px;margin:auto;padding:10px}
+.panel{
+  min-width:0;
+  background:linear-gradient(145deg,#0a1c3af5,#030b20f8);
+  border:1px solid var(--border);
+  border-radius:13px;
+  box-shadow:0 0 14px #006bff20,inset 0 0 14px #006bff08;
+}
+.topbar{
+  min-height:68px;
+  padding:10px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{
+  font-size:38px;
+  font-weight:1000;
+  font-style:italic;
+  color:var(--cyan);
+  text-shadow:0 0 14px var(--blue);
+}
+.brand h1{margin:0;font-size:22px;letter-spacing:2px}
+.brand p{margin:4px 0 0;font-size:11px;letter-spacing:2px;color:#50baff}
+.top-right{display:flex;align-items:center;gap:12px}
+.live{display:flex;align-items:center;gap:7px;color:var(--green);font-size:13px}
+.dot{width:9px;height:9px;background:var(--green);border-radius:50%;box-shadow:0 0 10px var(--green)}
+.clock{color:#74c9ff;font-size:13px;font-variant-numeric:tabular-nums}
+button:focus-visible,input:focus-visible,select:focus-visible{
+  outline:2px solid var(--cyan);outline-offset:2px
+}
+.icon-btn{
+  background:#071832;color:white;border:1px solid var(--border);
+  border-radius:8px;padding:9px 12px
+}
+.dashboard{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.dashboard-content{min-width:0;display:grid;gap:10px}
+.chart-panel{padding:10px;min-width:0}
+.chart-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;margin-bottom:9px
+}
+.chart-head strong{font-size:16px;letter-spacing:.5px}
+.chart-controls{display:flex;gap:7px}
+select,input{
+  min-width:0;color:#f0f7ff;background:#06142d;
+  border:1px solid #1951a0;border-radius:8px;padding:10px
+}
+.chart-controls select{font-size:13px}
+.chart-wrap{
+  width:100%;
+  height:clamp(280px,48vh,510px);
+  min-height:260px;
+  overflow:hidden;
+  border-radius:9px;
+  background:#020817;
+  border:1px solid #12345f;
+}
+.chart-wrap iframe{width:100%;height:100%;border:0;display:block}
+.work-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+  gap:10px;
+  min-width:0
+}
+.settings-panel,.analysis-panel{padding:13px;min-width:0}
+.section-title{
+  font-size:17px;margin:0 0 13px;
+  display:flex;align-items:center;gap:8px
+}
+.section-title span{font-size:21px;color:var(--cyan);text-shadow:0 0 8px var(--blue)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:13px;color:#c4dcfa;margin-bottom:6px}
+.field select,.field input{width:100%;font-size:14px;padding:10px}
+.timeframes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tf{
+  background:#06132b;border:1px solid #164385;color:#d6e7ff;
+  border-radius:7px;padding:10px 3px;font-size:13px
+}
+.tf.active{
+  background:linear-gradient(135deg,#086dff,#0844b7);
+  border-color:var(--cyan);box-shadow:0 0 10px #087cff65;color:white
+}
+.primary{
+  width:100%;border:1px solid #5deaff;border-radius:9px;
+  background:linear-gradient(100deg,#0756df,#009bff,#0756df);
+  color:white;padding:13px 7px;font-weight:bold;font-size:14px;
+  box-shadow:0 0 14px #007bff48
+}
+.primary:disabled{opacity:.65}
+.small-note{font-size:12px;line-height:1.5;color:var(--muted);margin:9px 0 0}
+.analysis-ring-wrap{display:flex;justify-content:center;margin:7px 0 12px}
+.ring{
+  width:100px;height:100px;border-radius:50%;
+  border:7px solid #0d3b82;border-top-color:var(--cyan);
+  border-right-color:#078aff;display:flex;align-items:center;
+  justify-content:center;flex-direction:column;background:#06132c;
+  box-shadow:0 0 15px #007bff42
+}
+.ring strong{font-size:25px}
+.ring small{font-size:11px;color:#a9c8ef;margin-top:3px}
+.metrics{border-top:1px solid #16345f}
+.metric{
+  display:flex;justify-content:space-between;gap:8px;
+  padding:9px 2px;border-bottom:1px solid #11294d;font-size:13px
+}
+.metric span{color:#b3cbe9}
+.metric strong{text-align:right;color:var(--muted);overflow-wrap:anywhere}
+.metric .up{color:var(--green)}.metric .down{color:var(--red)}
+.analysis-message{font-size:13px;line-height:1.5;color:var(--muted);margin:10px 0 0}
+.analysis-progress{
+  height:5px;border-radius:5px;background:#10284b;
+  overflow:hidden;margin-top:10px
+}
+.analysis-progress div{
+  height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));
+  transition:width .35s ease
+}
+.signal-panel{padding:12px;border-color:#087d96;box-shadow:0 0 15px #00d5ff14}
+.signal-main{display:grid;grid-template-columns:.9fr 1.1fr .8fr;gap:8px}
+.signal-box{
+  border:1px solid #164879;background:#041127;border-radius:9px;
+  padding:13px 5px;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;min-width:0
+}
+.signal-word{font-size:clamp(20px,3vw,30px);font-weight:900;color:#a8bedb}
+.signal-word.buy{color:var(--green);text-shadow:0 0 12px #00ffb055}
+.signal-word.sell{color:var(--red);text-shadow:0 0 12px #ff426c55}
+.signal-sub{font-size:12px;color:#a8c6eb;margin-top:5px}
+.signal-pair{font-size:15px;font-weight:bold;overflow-wrap:anywhere}
+.confidence-value{font-size:24px;font-weight:bold;color:var(--cyan);margin-top:5px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:9px}
+.stat{
+  padding:10px 4px;text-align:center;border:1px solid #153b70;
+  border-radius:8px;background:#05132b;min-width:0
+}
+.stat-label{font-size:12px;color:#67c9ff}
+.stat-value{font-size:13px;font-weight:bold;margin-top:5px;overflow-wrap:anywhere}
+.footer{text-align:center;color:#7195c5;font-size:11px;padding:8px 0}
+.license-panel{padding:12px}
+.license-screen{
+  position:fixed;z-index:1000;inset:0;display:flex;align-items:center;
+  justify-content:center;padding:20px;
+  background:radial-gradient(ellipse at top,#10285a,#020716 70%)
+}
+.login-card{
+  width:min(430px,100%);padding:25px;border:1px solid #1765ce;
+  border-radius:18px;background:linear-gradient(145deg,#0b1c3d,#030918);
+  box-shadow:0 0 35px #006bff35
+}
+.login-brand{text-align:center;margin-bottom:22px}
+.login-brand .logo{font-size:52px}
+.login-brand h1{font-size:27px;letter-spacing:3px;margin:5px 0}
+.login-brand p{font-size:12px;color:#56bdff;letter-spacing:2px;margin:0}
+.login-card label{display:block;color:#b9d8ff;font-size:14px;margin-bottom:8px}
+.login-card input{width:100%;padding:14px;font-size:15px;margin-bottom:12px}
+.login-message{font-size:13px;line-height:1.5;color:var(--muted);margin-top:12px;overflow-wrap:anywhere}
+@keyframes pulse{50%{opacity:.5}}
+.analyzing{animation:pulse .8s infinite}
+
+@media(min-width:900px){
+  .dashboard-content{grid-template-columns:minmax(0,1fr)}
+  .chart-wrap{height:clamp(350px,52vh,520px)}
+}
+@media(max-width:600px){
+  .app{padding:6px}
+  .topbar{min-height:58px;padding:7px 9px}
+  .logo{font-size:30px}
+  .brand{gap:6px}
+  .brand h1{font-size:17px;letter-spacing:1px}
+  .brand p{font-size:8px;letter-spacing:1px}
+  .top-right{gap:7px}
+  .live{font-size:11px}
+  .clock{display:none}
+  .icon-btn{padding:7px}
+  .dashboard{gap:7px;margin-top:7px}
+  .dashboard-content{gap:7px}
+  .chart-panel{padding:7px}
+  .chart-head{gap:7px}
+  .chart-head strong{font-size:13px}
+  .chart-controls{gap:5px}
+  .chart-controls select{padding:8px 4px;font-size:12px}
+  .chart-wrap{height:clamp(270px,42vh,390px);min-height:250px}
+  .work-grid{gap:7px}
+  .settings-panel,.analysis-panel{padding:9px}
+  .section-title{font-size:14px;gap:5px;margin-bottom:10px}
+  .section-title span{font-size:17px}
+  .field{margin-bottom:9px}
+  .field label{font-size:11px}
+  .field select,.field input{font-size:12px;padding:9px 5px}
+  .tf{font-size:12px;padding:9px 1px}
+  .primary{font-size:12px;padding:11px 4px}
+  .ring{width:75px;height:75px;border-width:5px}
+  .ring strong{font-size:20px}
+  .ring small{font-size:9px}
+  .metric{font-size:11px;padding:7px 0}
+  .analysis-message{font-size:11px}
+  .signal-panel{padding:8px}
+  .signal-main{gap:5px}
+  .signal-box{padding:10px 3px}
+  .signal-word{font-size:18px}
+  .signal-sub{font-size:10px}
+  .signal-pair{font-size:12px}
+  .confidence-value{font-size:19px}
+  .stats{gap:5px;margin-top:6px}
+  .stat{padding:7px 2px}
+  .stat-label{font-size:10px}
+  .stat-value{font-size:11px}
+}
+@media(max-width:370px){
+  .work-grid{grid-template-columns:1fr}
+  .chart-wrap{height:280px}
+  .brand h1{font-size:15px}
+  .signal-word{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+
+<body>
+
+<section class="license-screen" id="licenseScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="logo">YK</div>
+      <h1>YK BOT</h1>
+      <p>AI TRADING SYSTEM</p>
+    </div>
+    <form id="licenseForm">
+      <label for="licenseKey">Enter your license key</label>
+      <input id="licenseKey" type="text" autocomplete="off"
+             placeholder="YK-XXXX-XXXX" required>
+      <button class="primary" id="verifyButton" type="submit">
+        🔐 VERIFY &amp; OPEN DASHBOARD
+      </button>
+    </form>
+    <div class="login-message" id="loginMessage" role="status">
+      Apni valid YK BOT license key enter karein.
+    </div>
+  </div>
+</section>
+
+<div class="app hidden" id="app">
+  <header class="topbar panel">
+    <div class="brand">
+      <div class="logo">YK</div>
+      <div>
+        <h1>YK BOT</h1>
+        <p>AI TRADING SYSTEM</p>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="live"><span class="dot"></span>Connected</div>
+      <div class="clock" id="clock">--:--:--</div>
+      <button class="icon-btn" id="lockButton" type="button"
+              aria-label="Lock dashboard">🔒</button>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <main class="dashboard-content" id="home">
+
+      <section class="chart-panel panel">
+        <div class="chart-head">
+          <strong>📈 LIVE MARKET CHART</strong>
+          <div class="chart-controls">
+            <select id="chartPair" aria-label="Chart pair">
+              <option value="FX:EURUSD">EUR/USD</option>
+              <option value="FX:GBPUSD">GBP/USD</option>
+              <option value="FX:USDJPY">USD/JPY</option>
+              <option value="FX:AUDUSD">AUD/USD</option>
+              <option value="FX:USDCHF">USD/CHF</option>
+            </select>
+            <select id="chartTf" aria-label="Chart timeframe">
+              <option value="1">1m</option>
+              <option value="5">5m</option>
+              <option value="15">15m</option>
+              <option value="30">30m</option>
+              <option value="60">1h</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <iframe id="chartFrame"
+            title="TradingView market candlestick chart"
+            loading="eager"
+            allowfullscreen
+            src="https://www.tradingview.com/widgetembed/?symbol=FX%3AEURUSD&interval=1&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=%23071830&theme=dark&style=1&timezone=Asia%2FKarachi&withdateranges=1&hideideas=1">
+          </iframe>
+        </div>
+        <p class="small-note">
+          Chart TradingView se load hota hai. Market data ki availability
+          provider par depend karti hai.
+        </p>
+      </section>
+
+      <div class="work-grid">
+        <section class="settings-panel panel" id="marketSettings">
+          <h2 class="section-title"><span>⚙</span>Market Settings</h2>
+
+          <div class="field">
+            <label for="marketType">Market Type</label>
+            <select id="marketType">
+              <option value="Live Market">🟢 Live Market</option>
+              <option value="OTC">OTC</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="pair">Trading Pair</label>
+            <select id="pair">
+              <option value="EUR/USD">EUR/USD</option>
+              <option value="GBP/USD">GBP/USD</option>
+              <option value="USD/JPY">USD/JPY</option>
+              <option value="AUD/USD">AUD/USD</option>
+              <option value="USD/CHF">USD/CHF</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Trading Timeframe</label>
+            <div class="timeframes">
+              <button class="tf active" type="button" data-tf="1m">1m</button>
+              <button class="tf" type="button" data-tf="5m">5m</button>
+              <button class="tf" type="button" data-tf="15m">15m</button>
+              <button class="tf" type="button" data-tf="30m">30m</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="expiry">Expiry Time</label>
+            <select id="expiry">
+              <option value="5 seconds">5 seconds</option>
+              <option value="15 seconds">15 seconds</option>
+              <option value="30 seconds">30 seconds</option>
+              <option value="1 minute">1 minute</option>
+              <option value="5 minutes">5 minutes</option>
+            </select>
+          </div>
+
+          <button class="primary" id="generateButton" type="button">
+            ⚡ GENERATE SIGNAL
+          </button>
+          <p class="small-note">
+            Signal prediction hai, profit ki guarantee nahi.
+          </p>
+        </section>
+
+        <section class="analysis-panel panel" id="analysis">
+          <h2 class="section-title"><span>♧</span>AI Market Analysis</h2>
+
+          <div class="analysis-ring-wrap">
+            <div class="ring">
+              <strong id="confidence">--</strong>
+              <small>Confidence</small>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric"><span>Trend</span><strong id="trend">Waiting</strong></div>
+            <div class="metric"><span>RSI (14)</span><strong id="rsi">--</strong></div>
+            <div class="metric"><span>MACD</span><strong id="macd">--</strong></div>
+            <div class="metric"><span>Support</span><strong id="support">--</strong></div>
+            <div class="metric"><span>Resistance</span><strong id="resistance">--</strong></div>
+          </div>
+
+          <p class="analysis-message" id="analysisMessage">
+            License verify karke Generate Signal dabao.
+          </p>
+          <div class="analysis-progress"><div id="progressBar"></div></div>
+        </section>
+      </div>
+
+      <section class="signal-panel panel" id="signals">
+        <h2 class="section-title"><span>⚡</span>Trading Signal</h2>
+        <div class="signal-main">
+          <div class="signal-box" id="signalBox">
+            <div class="signal-word" id="signalWord">WAIT</div>
+            <div class="signal-sub" id="signalSub">Signal pending</div>
+          </div>
+          <div class="signal-box">
+            <div class="signal-pair" id="signalPair">EUR/USD</div>
+            <div class="signal-sub" id="signalDetails">1m | 5 seconds expiry</div>
+            <div class="signal-sub" id="signalMarket">Live Market</div>
+          </div>
+          <div class="signal-box">
+            <div class="signal-sub">Confidence</div>
+            <div class="confidence-value" id="signalConfidence">--</div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">Strategy</div><div class="stat-value" id="strategyStatus">Ready</div></div>
+          <div class="stat"><div class="stat-label">Timeframe</div><div class="stat-value" id="timeframeStatus">1m</div></div>
+          <div class="stat"><div class="stat-label">License</div><div class="stat-value" id="licenseStatus">Not verified</div></div>
+        </div>
+      </section>
+
+      <section class="panel license-panel" id="licensePanel">
+        <h2 class="section-title"><span>🔐</span>License Settings</h2>
+        <button class="icon-btn" id="changeLicense" type="button">
+          Lock dashboard
+        </button>
+      </section>
+
+      <footer class="footer">YK BOT · AI Trading Dashboard</footer>
+    </main>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const SUPABASE_URL = "https://fnybcoirsjosoanneegt.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Dwk9gV_7NB3c5UvvzollDw_0AoyACmR";
+const VERIFY_URL = SUPABASE_URL + "/functions/v1/yk-verify-license";
+const SIGNAL_URL = SUPABASE_URL + "/functions/v1/yk-multi-strategy";
+
+const $ = id => document.getElementById(id);
+
+let licenseKey = "";
+let licenseVerified = false;
+let timeframe = "1m";
+let generating = false;
+let clockTimer = null;
+let analysisTimer = null;
+
+function deviceId(){
+  let id = localStorage.getItem("yk_device_id");
+  if(!id){
+    id = (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : "yk-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+    localStorage.setItem("yk_device_id",id);
+  }
+  return id;
+}
+
+function headers(){
+  return {
+    "Content-Type":"application/json",
+    "apikey":SUPABASE_PUBLISHABLE_KEY,
+    "Authorization":"Bearer " + SUPABASE_PUBLISHABLE_KEY
+  };
+}
+
+async function postJSON(url,body){
+  const response = await fetch(url,{
+    method:"POST",
+    headers:headers(),
+    body:JSON.stringify(body)
+  });
+
+  let data;
+  try{
+    data = await response.json();
+  }catch(error){
+    throw new Error("Server ka response samajh nahi aaya.");
+  }
+
+  if(!response.ok){
+    throw new Error(data.message || data.error || ("HTTP " + response.status));
+  }
+
+  return data;
+}
+
+function loginMessage(message,good=false){
+  $("loginMessage").textContent = message;
+  $("loginMessage").style.color = good ? "var(--green)" : "var(--red)";
+}
+
+function startClock(){
+  if(clockTimer) clearInterval(clockTimer);
+
+  const update = () => {
+    $("clock").textContent = new Intl.DateTimeFormat("en-GB",{
+      timeZone:"Asia/Karachi",
+      hour:"2-digit",minute:"2-digit",second:"2-digit",
+      hour12:false
+    }).format(new Date());
+  };
+
+  update();
+  clockTimer = setInterval(update,1000);
+}
+
+function setProgress(value){
+  $("progressBar").style.width = Math.max(0,Math.min(100,value)) + "%";
+}
+
+function resetSignal(message){
+  $("signalWord").textContent = "WAIT";
+  $("signalWord").className = "signal-word";
+  $("signalBox").style.borderColor = "var(--border)";
+  $("signalSub").textContent = "Signal pending";
+  $("signalPair").textContent = $("pair").value;
+  $("signalMarket").textContent = $("marketType").value;
+  $("signalDetails").textContent = timeframe + " | " + $("expiry").value + " expiry";
+  $("signalConfidence").textContent = "--";
+  $("confidence").textContent = "--";
+  $("trend").textContent = "Waiting";
+  $("rsi").textContent = "--";
+  $("macd").textContent = "--";
+  $("support").textContent = "--";
+  $("resistance").textContent = "--";
+  $("analysisMessage").textContent = message;
+  $("strategyStatus").textContent = "Ready";
+  $("timeframeStatus").textContent = timeframe;
+  setProgress(0);
+}
+
+function getValue(obj,keys){
+  for(const key of keys){
+    const value = obj && obj[key];
+    if(value !== undefined && value !== null && value !== ""){
+      return value;
+    }
+  }
+  return null;
+}
+
+function showAnalysis(data){
+  const analysis = data.analysis && typeof data.analysis === "object"
+    ? data.analysis : data;
+
+  const trend = getValue(analysis,["trend","market_trend"]);
+  const rsi = getValue(analysis,["rsi","RSI"]);
+  const macd = getValue(analysis,["macd","MACD"]);
+  const support = getValue(analysis,["support","support_level"]);
+  const resistance = getValue(analysis,["resistance","resistance_level"]);
+  const message = getValue(analysis,["analysis_message","message","reason"]);
+
+  if(trend !== null) $("trend").textContent = String(trend);
+  if(rsi !== null) $("rsi").textContent = String(rsi);
+  if(macd !== null) $("macd").textContent = String(macd);
+  if(support !== null) $("support").textContent = String(support);
+  if(resistance !== null) $("resistance").textContent = String(resistance);
+
+  if(message !== null) $("analysisMessage").textContent = String(message);
+  else $("analysisMessage").textContent =
+    "Backend ka signal result receive ho gaya. Tafseeli analysis fields sirf tab dikhengi jab backend unhein provide karega.";
+}
+
+function runAnalysisSteps(){
+  const steps = [
+    "🔍 Backend se market signal request bheji ja rahi hai…",
+    "📊 Strategy response ka intezar hai…",
+    "🧮 Backend analysis result check ho raha hai…",
+    "🎯 Signal result tayyar kiya ja raha hai…"
+  ];
+
+  let index = 0;
+  setProgress(8);
+  $("analysisMessage").textContent = steps[0];
+
+  if(analysisTimer) clearInterval(analysisTimer);
+
+  analysisTimer = setInterval(() => {
+    if(index < steps.length - 1) index++;
+    $("analysisMessage").textContent = steps[index];
+    setProgress(Math.min(88,20 + index * 22));
+  },700);
+}
+
+function stopAnalysisSteps(){
+  if(analysisTimer){
+    clearInterval(analysisTimer);
+    analysisTimer = null;
+  }
+}
+
+$("licenseForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+
+  const key = $("licenseKey").value.trim();
+  if(!key){
+    loginMessage("License key enter karein.");
+    return;
+  }
+
+  $("verifyButton").disabled = true;
+  $("verifyButton").textContent = "VERIFYING…";
+  loginMessage("License verify ho raha hai…",true);
+
+  try{
+    const result = await postJSON(VERIFY_URL,{
+      license_key:key,
+      device_id:deviceId()
+    });
+
+    if(result.valid !== true){
+      licenseVerified = false;
+      loginMessage(result.message || "License invalid hai.");
+      return;
+    }
+
+    licenseKey = key;
+    licenseVerified = true;
+    $("licenseScreen").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    $("licenseStatus").textContent = "Verified";
+
+    startClock();
+    updateChart();
+    resetSignal("License verified. Generate Signal dabakar backend se signal hasil karein.");
+
+  }catch(error){
+    loginMessage("Verification failed: " + error.message);
+  }finally{
+    $("verifyButton").disabled = false;
+    $("verifyButton").textContent = "🔐 VERIFY & OPEN DASHBOARD";
+  }
+});
+
+function lockDashboard(){
+  licenseVerified = false;
+  licenseKey = "";
+  stopAnalysisSteps();
+
+  $("app").classList.add("hidden");
+  $("licenseScreen").classList.remove("hidden");
+  $("licenseKey").value = "";
+
+  resetSignal("Dobara kholne ke liye license key verify karein.");
+  loginMessage("Dobara kholne ke liye license key verify karein.");
+}
+
+$("lockButton").addEventListener("click",lockDashboard);
+$("changeLicense").addEventListener("click",lockDashboard);
+
+function updateChart(){
+  const symbol = $("chartPair").value;
+  const interval = $("chartTf").value;
+
+  const url = "https://www.tradingview.com/widgetembed/?" +
+    "symbol=" + encodeURIComponent(symbol) +
+    "&interval=" + encodeURIComponent(interval) +
+    "&hidesidetoolbar=1" +
+    "&symboledit=1" +
+    "&saveimage=0" +
+    "&toolbarbg=%23071830" +
+    "&theme=dark" +
+    "&style=1" +
+    "&timezone=Asia%2FKarachi" +
+    "&withdateranges=1" +
+    "&hideideas=1";
+
+  $("chartFrame").src = url;
+}
+
+$("chartPair").addEventListener("change",()=>{
+  const chartToSettings = {
+    "FX:EURUSD":"EUR/USD",
+    "FX:GBPUSD":"GBP/USD",
+    "FX:USDJPY":"USD/JPY",
+    "FX:AUDUSD":"AUD/USD",
+    "FX:USDCHF":"USD/CHF"
+  };
+  $("pair").value = chartToSettings[$("chartPair").value] || "EUR/USD";
+  updateChart();
+});
+
+$("chartTf").addEventListener("change",updateChart);
+
+$("pair").addEventListener("change",()=>{
+  const pairToChart = {
+    "EUR/USD":"FX:EURUSD",
+    "GBP/USD":"FX:GBPUSD",
+    "USD/JPY":"FX:USDJPY",
+    "AUD/USD":"FX:AUDUSD",
+    "USD/CHF":"FX:USDCHF"
+  };
+  $("chartPair").value = pairToChart[$("pair").value] || "FX:EURUSD";
+  updateChart();
+});
+
+document.querySelectorAll(".tf").forEach(button=>{
+  button.addEventListener("click",()=>{
+    document.querySelectorAll(".tf").forEach(b=>{
+      b.classList.toggle("active",b === button);
+    });
+
+    timeframe = button.dataset.tf;
+    $("timeframeStatus").textContent = timeframe;
+
+    const chartInterval = {
+      "1m":"1","5m":"5","15m":"15","30m":"30"
+    };
+
+    $("chartTf").value = chartInterval[timeframe] || "1";
+    updateChart();
+
+    $("signalDetails").textContent = timeframe + " | " + $("expiry").value + " expiry";
+  });
+});
+
+$("expiry").addEventListener("change",()=>{
+  $("signalDetails").textContent = timeframe + " | " + $("expiry").value + " expiry";
+});
+
+$("marketType").addEventListener("change",()=>{
+  $("signalMarket").textContent = $("marketType").value;
+});
+
+$("generateButton").addEventListener("click",async()=>{
+  if(!licenseVerified || !licenseKey){
+    resetSignal("Pehle license verify karein.");
+    return;
+  }
+
+  if(generating) return;
+
+  if($("marketType").value === "OTC"){
+    resetSignal("OTC strategy backend se verify nahi hui. Live Market select karein.");
+    return;
+  }
+
+  if($("pair").value !== "EUR/USD"){
+    resetSignal("Maujooda configured backend ke liye EUR/USD select karein.");
+    return;
+  }
+
+  generating = true;
+  $("generateButton").disabled = true;
+  $("generateButton").textContent = "ANALYZING…";
+  $("strategyStatus").textContent = "Running";
+  $("signalPair").textContent = $("pair").value;
+  $("signalMarket").textContent = $("marketType").value;
+  $("signalDetails").textContent = timeframe + " | " + $("expiry").value + " expiry";
+
+  runAnalysisSteps();
+
+  try{
+    const data = await postJSON(SIGNAL_URL,{
+      timeframe:timeframe,
+      license_key:licenseKey,
+      device_id:deviceId()
+    });
+
+    if(data.success !== true){
+      throw new Error(data.message || "Signal generate nahi hua.");
+    }
+
+    const signal = String(data.signal || "WAIT").toUpperCase();
+
+    if(!["BUY","SELL","WAIT"].includes(signal)){
+      throw new Error("Unknown signal response.");
+    }
+
+    stopAnalysisSteps();
+
+    $("signalWord").textContent =
+      signal === "BUY" ? "▲ CALL" :
+      signal === "SELL" ? "▼ PUT" : "WAIT";
+
+    $("signalWord").className =
+      "signal-word " +
+      (signal === "BUY" ? "buy" : signal === "SELL" ? "sell" : "");
+
+    $("signalBox").style.borderColor =
+      signal === "BUY" ? "var(--green)" :
+      signal === "SELL" ? "var(--red)" : "var(--border)";
+
+    $("signalSub").textContent =
+      signal === "BUY" ? "(BUY)" :
+      signal === "SELL" ? "(SELL)" : "No trade signal";
+
+    $("strategyStatus").textContent = "Completed";
+
+    const confidence = data.confidence;
+    if(typeof confidence === "number" && confidence >= 0 && confidence <= 100){
+      $("confidence").textContent = confidence + "%";
+      $("signalConfidence").textContent = confidence + "%";
+    }else{
+      $("confidence").textContent = "--";
+      $("signalConfidence").textContent = "--";
+    }
+
+    showAnalysis(data);
+    setProgress(100);
+
+  }catch(error){
+    stopAnalysisSteps();
+    resetSignal("Signal error: " + error.message);
+    $("strategyStatus").textContent = "Error";
+  }finally{
+    generating = false;
+    $("generateButton").disabled = false;
+    $("generateButton").textContent = "⚡ GENERATE SIGNAL";
+  }
+});
+
+resetSignal("License verify karke Generate Signal dabao.");
+</script>
+</body>
+</html>
